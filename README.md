@@ -1,5 +1,72 @@
 # Sage-Wiki 中文提示词
 
+---
+
+## 版本历史
+
+### 0.1.1 — 2026-04-08
+
+**交互式 TUI 仪表盘**
+
+- **`sage-wiki tui`** — 全新统一终端界面，支持浏览、搜索、问答、编译四个标签页
+- **[F1] 浏览** — 按概念/摘要/输出导航，支持 glamour 渲染的 Markdown 预览
+- **[F2] 搜索** — 混合排序的模糊搜索，支持文章预览
+- **[F3] 问答** — 多轮对话式问答，流式 LLM 响应，Ctrl+S 保存答案
+- **[F4] 编译** — 实时编译仪表盘，文件状态图标，源文件变更自动重编译
+
+**成本优化**
+
+- 编译完成后显示 token 用量和估算费用
+- `compile --estimate` 预览费用（支持标准/batch/缓存三种定价）
+- **提示词缓存** — Anthropic/Gemini/OpenAI 均支持，减少 50-90% 重复 token 费用
+- **Batch API** — `compile --batch` 使用批量 API，享受 50% 折扣
+- 自动批处理模式（源文件超过 10 个时自动启用）
+
+**新增配置项**
+
+```yaml
+compiler:
+  mode: standard          # standard, batch, or auto
+  estimate_before: false  # 编译前询问费用
+  prompt_cache: true      # 启用提示词缓存
+  batch_threshold: 10     # 自动批处理阈值
+```
+
+**新增 CLI 标志**
+
+- `compile --batch` — 使用批量 API
+- `compile --no-cache` — 禁用提示词缓存
+- `compile --estimate` — 仅预估费用
+
+### 0.1.0 — 2026-04-07
+
+**核心功能**
+
+- **5 阶段编译管线** — 差异检测、摘要、概念提取、文章写作、图片描述
+- **多格式支持** — Markdown、PDF、Word、Excel、PPT、CSV、EPUB、邮件、图片（视觉模型）
+- **混合搜索** — BM25 + 向量相似度 + 标签增强 + 时效衰减
+- **本体图谱** — 实体-关系图，支持 BFS 遍历和 `[[wikilinks]]` 互连
+- **问答代理** — 自然语言问答，自动归档答案到 outputs/
+- **监视模式** — 文件系统监听，支持 WSL2/网络驱动器
+
+**LLM 支持**
+
+- **多 provider** — Anthropic、OpenAI、Gemini、Ollama 及 OpenAI 兼容 API
+- **流式输出** — 所有 provider 均支持 SSE 流式响应
+- **Embedding 级联** — 自动检测未知模型的向量维度
+
+**Web UI**
+
+- 文章浏览器、交互式知识图谱、流式问答、混合搜索、深色/浅色模式
+
+**MCP Server**
+
+- 14 个工具，支持 stdio 和 SSE 两种传输方式
+
+---
+
+## Sage-Wiki 是什么？
+
 本仓库提供 sage-wiki 的**中文提示词模板**，让 sage-wiki 生成中文维基内容。
 
 ---
