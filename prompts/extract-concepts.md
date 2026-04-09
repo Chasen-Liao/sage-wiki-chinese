@@ -17,10 +17,11 @@
 {{.Summaries}}
 
 对每个概念，提供以下信息：
-- name：小写连字符标识符（例如 "self-attention"）
-- aliases：别名（例如 "scaled dot-product attention"）
+- name：小写连字符标识符，使用中文或英文原文（例如 "自注意力"、"self-attention"）
+- aliases：别名，使用中文或英文原文（例如 "缩放点积注意力"）
 - sources：涉及此概念的源文件
 - type：concept、technique 或 claim
 
+**重要**：优先使用中文作为概念名称（name），英文作为别名（aliases）。
 在适当时与现有概念合并（检测别名）。
 输出为 JSON 数组格式。

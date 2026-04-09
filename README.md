@@ -1,160 +1,262 @@
-# Sage-Wiki 中文提示词
+# Sage-Wiki 自定义提示词使用方法
 
----
+## 概述
 
-## 版本历史
-
-### 0.1.1 — 2026-04-08
-
-**交互式 TUI 仪表盘**
-
-- **`sage-wiki tui`** — 全新统一终端界面，支持浏览、搜索、问答、编译四个标签页
-- **[F1] 浏览** — 按概念/摘要/输出导航，支持 glamour 渲染的 Markdown 预览
-- **[F2] 搜索** — 混合排序的模糊搜索，支持文章预览
-- **[F3] 问答** — 多轮对话式问答，流式 LLM 响应，Ctrl+S 保存答案
-- **[F4] 编译** — 实时编译仪表盘，文件状态图标，源文件变更自动重编译
-
-**成本优化**
-
-- 编译完成后显示 token 用量和估算费用
-- `compile --estimate` 预览费用（支持标准/batch/缓存三种定价）
-- **提示词缓存** — Anthropic/Gemini/OpenAI 均支持，减少 50-90% 重复 token 费用
-- **Batch API** — `compile --batch` 使用批量 API，享受 50% 折扣
-- 自动批处理模式（源文件超过 10 个时自动启用）
-
-**新增配置项**
-
-```yaml
-compiler:
-  mode: standard          # standard, batch, or auto
-  estimate_before: false  # 编译前询问费用
-  prompt_cache: true      # 启用提示词缓存
-  batch_threshold: 10     # 自动批处理阈值
-```
-
-**新增 CLI 标志**
-
-- `compile --batch` — 使用批量 API
-- `compile --no-cache` — 禁用提示词缓存
-- `compile --estimate` — 仅预估费用
-
-### 0.1.0 — 2026-04-07
-
-**核心功能**
-
-- **5 阶段编译管线** — 差异检测、摘要、概念提取、文章写作、图片描述
-- **多格式支持** — Markdown、PDF、Word、Excel、PPT、CSV、EPUB、邮件、图片（视觉模型）
-- **混合搜索** — BM25 + 向量相似度 + 标签增强 + 时效衰减
-- **本体图谱** — 实体-关系图，支持 BFS 遍历和 `[[wikilinks]]` 互连
-- **问答代理** — 自然语言问答，自动归档答案到 outputs/
-- **监视模式** — 文件系统监听，支持 WSL2/网络驱动器
-
-**LLM 支持**
-
-- **多 provider** — Anthropic、OpenAI、Gemini、Ollama 及 OpenAI 兼容 API
-- **流式输出** — 所有 provider 均支持 SSE 流式响应
-- **Embedding 级联** — 自动检测未知模型的向量维度
-
-**Web UI**
-
-- 文章浏览器、交互式知识图谱、流式问答、混合搜索、深色/浅色模式
-
-**MCP Server**
-
-- 14 个工具，支持 stdio 和 SSE 两种传输方式
-
----
-
-## Sage-Wiki 是什么？
-
-本仓库提供 sage-wiki 的**中文提示词模板**，让 sage-wiki 生成中文维基内容。
-
----
-
-## Sage-Wiki 是什么？
-
-[Sage-Wiki](https://github.com/xoai/sage-wiki) 是一个 AI 驱动的个人知识维基工具，通过 LLM 自动完成以下工作：
-
-- **文档摘要** — 对文章、论文进行结构化摘要
-- **概念提取** — 从文档中提取概念、建立关联
-- **文章写作** — 根据概念和来源自动撰写维基文章
-
-它用 Go 实现，支持自定义所有提示词，本仓库即为中文提示词集合。
-
----
-
-## 快速开始
-
-### ⚠️ 重要：先执行 init，再配置提示词
-
-> **警告**：`sage-wiki init --prompts` 会**覆盖**你已有的配置文件（包括项目配置、自定义设置等），恢复为默认配置。
->
-> **正确顺序**：先复制本仓库的提示词文件到valut根目录中，然后在使用 `sage-wiki init --prompts` 初始化项目，之后再填写项目配置
-
-### 步骤 1：复制中文提示词到 vault 根目录
-
-将本仓库的 `prompts/` 目录复制到你的 wiki 项目根目录：
-
-```bash
-# 例如你的 wiki 项目在 ~/my-wiki
-cp -r prompts ~/my-wiki/
-```
-
-### 步骤 2：初始化项目
-
-```bash
-cd ~/my-wiki
-sage-wiki init --prompts
-```
-
-此时 `init` 会覆盖配置，但由于提示词文件已经存在，**不会覆盖 prompts 目录**（仅当目录不存在时才会创建）。
-
-### 步骤 3：填写项目配置
-
-初始化后，按提示填写项目配置（LLM 配置等）。
-
-### 步骤 4：验证
-
-```bash
-sage-wiki compile --fresh
-```
-
-现在 sage-wiki 会使用中文提示词，生成中文维基内容。
+Sage-wiki 支持用户自定义所有 LLM 提示词，用于控制文档摘要生成、概念提取、文章写作等行为。自定义提示词可以完全覆盖内置默认值。
 
 ---
 
 ## 提示词文件说明
 
-| 文件 | 用途 |
-|------|------|
-| `summarize-article.md` | 文章摘要（网页、博客、技术文档） |
-| `summarize-paper.md` | 论文摘要 |
-| `extract-concepts.md` | 从摘要中提取概念 |
-| `write-article.md` | 撰写维基文章 |
-| `caption-image.md` | 图片描述 |
-
-详细模板变量说明参见 [prompts/README.md](prompts/README.md)。
-
----
-
-## 与上游保持同步
-
-Sage-Wiki 持续更新，本仓库会跟随上游发布新版本提示词。
-
-- **上游更新时**：对比上游默认提示词与本仓库版本，合并变更
-- **上游新提示词**：及时添加对应的中文版本
-
-欢迎提交 PR 共同维护。
+| 文件名 | 用途 | 模板变量 |
+|--------|------|----------|
+| `summarize-article.md` | 文章摘要 | `{{.SourcePath}}`, `{{.SourceType}}`, `{{.MaxTokens}}` |
+| `summarize-paper.md` | 论文摘要 | `{{.SourcePath}}`, `{{.SourceType}}`, `{{.MaxTokens}}` |
+| `extract-concepts.md` | 概念提取 | `{{.ExistingConcepts}}`, `{{.Summaries}}` |
+| `write-article.md` | 文章写作 | `{{.ConceptName}}`, `{{.ConceptID}}`, `{{.Sources}}`, `{{.RelatedConcepts}}`, `{{.ExistingArticle}}`, `{{.Learnings}}`, `{{.Aliases}}`, `{{.SourceList}}`, `{{.RelatedList}}`, `{{.Confidence}}`, `{{.MaxTokens}}` |
+| `caption-image.md` | 图片描述 | `{{.SourcePath}}` |
+| `capture-knowledge.md` | 知识捕获 | `{{.Context}}`, `{{.Tags}}` |
 
 ---
 
-## 自定义修改
+## ⚠️ 重要：模板覆盖限制
 
-你可以自由编辑 `prompts/` 下的 `.md` 文件，调整提示词行为。建议保留结构标记（如 `## 关键主张`）以便解析。
+经过源代码分析，**并非所有提示词都能被用户自定义覆盖**：
+
+| 文件名 | 是否可覆盖 | 说明 |
+|--------|----------|------|
+| `summarize-article.md` | ✅ 可用 | 实际调用 `prompts.Render()` |
+| `summarize-paper.md` | ✅ 可用 | 实际调用 `prompts.Render()` |
+| `capture-knowledge.md` | ✅ 可用 | 实际调用 `prompts.Render()` |
+| `extract-concepts.md` | ❌ **不可用** | 硬编码在 `internal/compiler/concepts.go` 中 |
+| `write-article.md` | ❌ **不可用** | 硬编码在 `internal/compiler/write.go` 中 |
+| `caption-image.md` | ❌ 待确认 | 需进一步验证 |
+
+**根本原因**：sage-wiki 的 `prompts.Render()` 仅被 `summarize` 和 `capture_knowledge` 调用，`extract_concepts` 和 `write_article` 的 prompt 是直接在 Go 代码里用 `fmt.Sprintf` 拼接的字符串。
+
+如果你希望自定义 concept 提取或 article 写作的行为，需要修改上游 sage-wiki 的源代码（`internal/compiler/concepts.go` 和 `internal/compiler/write.go`）。
 
 ---
 
-## 参考资料
+## 快速开始
 
-- [Sage-Wiki 官方仓库](https://github.com/xoai/sage-wiki)
-- [详细提示词文档](prompts/README.md)
+### 1. 生成提示词模板
+
+在项目目录下运行：
+
+```bash
+sage-wiki init --prompts
+```
+
+这会在 `prompts/` 目录下生成所有默认提示词模板文件。
+
+### 2. 编辑提示词
+
+直接编辑 `prompts/` 目录下的 `.md` 文件，修改为你需要的内容。
+
+### 3. 激活自定义提示词
+
+**自动加载**：sage-wiki 在编译时会**自动扫描**项目根目录下的 `prompts/` 文件夹，自动加载自定义提示词覆盖内置默认值。
+
+无需额外配置，程序会自动发现并使用。
+
+### 4. 验证生效
+
+运行编译并观察输出：
+
+```bash
+sage-wiki compile --fresh
+```
+
+如果提示词被正确加载，程序会使用你编辑的内容。
+
+---
+
+## 文件命名规则
+
+| 内置文件名 | 用户文件名 | 转换规则 |
+|------------|------------|----------|
+| `summarize_article.txt` | `summarize-article.md` | 下划线 → 中划线，`.txt` → `.md` |
+| `summarize_paper.txt` | `summarize-paper.md` | 同上 |
+| `extract_concepts.txt` | `extract-concepts.md` | 同上 |
+| `write_article.txt` | `write-article.md` | 同上 |
+| `caption_image.txt` | `caption-image.md` | 同上 |
+| `capture_knowledge.txt` | `capture-knowledge.md` | 同上 |
+
+---
+
+## 模板语法
+
+Sage-wiki 使用 Go `text/template` 语法。
+
+### 变量输出
+
+```
+{{.VariableName}}
+```
+
+### 条件判断
+
+```
+{{if .ExistingArticle}}
+这里的内容只在 .ExistingArticle 不为空时渲染
+{{end}}
+```
+
+### 循环遍历
+
+```
+{{range .RelatedConcepts}}
+- [[{{.}}]]
+{{end}}
+```
+
+---
+
+## 各提示词详解
+
+### summarize-article.md（文章摘要）
+
+**何时触发**：对非论文类文档（如网页、博客、技术文档）生成结构化摘要时使用。
+
+**可用变量**：
+- `{{.SourcePath}}` — 源文件路径
+- `{{.SourceType}}` — 源文件类型（如 "article", "web", "doc"）
+- `{{.MaxTokens}}` — 最大 token 数限制
+
+**输出结构**（建议保留）：
+```
+## 关键主张
+## 方法论
+## 结果
+## 概念
+```
+
+---
+
+### summarize-paper.md（论文摘要）
+
+**何时触发**：对学术论文（SourceType 为 "paper"）生成摘要时使用。
+
+**可用变量**：
+- `{{.SourcePath}}` — 源文件路径
+- `{{.SourceType}}` — 固定为 "paper"
+- `{{.MaxTokens}}` — 最大 token 数限制
+
+**输出结构**（建议保留）：
+```
+## 关键主张
+## 方法论
+## 结果
+## 局限性
+## 概念
+```
+
+---
+
+### extract-concepts.md（概念提取）
+
+**何时触发**：从已摘要的文档中提取概念、建立概念关联时使用。
+
+**可用变量**：
+- `{{.ExistingConcepts}}` — 已有的概念列表（避免重复）
+- `{{.Summaries}}` — 所有文档摘要内容
+
+**输出要求**：必须输出 JSON 数组格式，每个概念包含：
+```json
+{
+  "name": "概念标识符",
+  "aliases": ["别名1", "别名2"],
+  "sources": ["源文件路径"],
+  "type": "concept | technique | claim"
+}
+```
+
+---
+
+### write-article.md（文章写作）
+
+**何时触发**：根据提取的概念撰写完整维基文章时使用。
+
+**可用变量**：
+- `{{.ConceptName}}` — 概念名称
+- `{{.ConceptID}}` — 概念唯一标识符（小写连字符）
+- `{{.Sources}}` — 来源文件列表
+- `{{.RelatedConcepts}}` — 相关概念列表
+- `{{.ExistingArticle}}` — 已有的文章内容（如有，用于更新/扩展）
+- `{{.Learnings}}` — 之前编译的学习笔记
+- `{{.Aliases}}` — 概念别名
+- `{{.SourceList}}` — 格式化后的源列表
+- `{{.RelatedList}}` — 格式化后的相关概念列表
+- `{{.Confidence}}` — 置信度
+- `{{.MaxTokens}}` — 最大 token 数限制
+
+**输出结构**（建议保留）：
+```
+---
+概念 YAML frontmatter
+---
+## 定义
+## 工作原理
+## 变体
+## 权衡
+## 参见
+```
+
+---
+
+### caption-image.md（图片描述）
+
+**何时触发**：为文档中的图片生成描述性标题时使用。
+
+**可用变量**：
+- `{{.SourcePath}}` — 图片文件路径
+
+---
+
+### capture-knowledge.md（知识捕获）
+
+**何时触发**：从对话文本中提取值得保留的知识时使用（MCP 工具 `wiki_capture` 调用）。
+
+**可用变量**：
+- `{{.Context}}` — 可选的上下文信息
+- `{{.Tags}}` — 可选的标签列表
+
+**输出要求**：必须输出 JSON 数组格式：
+```json
+[{"title": "short-slug-title", "content": "知识内容..."}, ...]
+```
+如果没有值得提取的内容，返回空数组 `[]`。
+
+---
+
+## 恢复默认提示词
+
+删除 `prompts/` 目录下的对应文件，或删除整个 `prompts/` 目录，sage-wiki 会自动回退到内置默认提示词。
+
+---
+
+## 常见问题
+
+### Q: 为什么编辑后没生效？
+
+1. 确认文件**名称格式**正确（必须是 `summarize-article.md` 而不是 `summarize_article.md`）
+2. 确认文件在项目**根目录**的 `prompts/` 下
+3. 确认**编译时使用正确的项目目录**（`--project` 参数）
+
+### Q: 可以只自定义部分提示词吗？
+
+可以。只编辑你想要自定义的提示词文件，其他文件删除或留空，sage-wiki 会自动使用内置默认值补充。
+
+### Q: 提示词有语法错误会怎样？
+
+sage-wiki 会报错并停止编译。检查模板语法，特别是 `{{}}` 配对和 `{{if}}...{{end}}` 配对。
+
+---
+
+## 注意事项
+
+1. **保留结构标记**（如 `## 关键主张`）有助于 sage-wiki 解析输出
+2. **JSON 输出必须合法**（extract-concepts 提示词）
+3. **YAML frontmatter 必须有效**（write-article 提示词）
+4. **变量名大小写敏感**，`{{.SourcePath}}` 不能写成 `{{.sourcepath}}`

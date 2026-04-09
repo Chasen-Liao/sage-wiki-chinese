@@ -40,7 +40,7 @@ cd /e/MyProjects/sage-wiki && git diff HEAD~10 --name-only | grep -E "(prompts|C
 - `extract_concepts.txt` → `extract-concepts.md`
 - `write_article.txt` → `write-article.md`
 - `caption_image.txt` → `caption-image.md`
-- `capture_knowledge.txt` → **新增**（本仓库尚未收录）
+- `capture_knowledge.txt` → `capture-knowledge.md`
 
 ### 3. 判断是否需要更新
 
@@ -50,9 +50,9 @@ cd /e/MyProjects/sage-wiki && git diff HEAD~10 --name-only | grep -E "(prompts|C
 | 上游新增提示词 | 创建对应的中文版本 |
 | 上游只有功能变化 | 在 README 添加版本特性说明 |
 
-### 4. 更新 README 版本历史
+### 4. 更新版本历史
 
-在 `README.md` 顶部添加版本更新说明：
+在仓库根目录 `README.md` 顶部添加版本更新说明：
 
 ```markdown
 ## 版本历史
@@ -68,5 +68,5 @@ cd /e/MyProjects/sage-wiki && git diff HEAD~10 --name-only | grep -E "(prompts|C
 - [ ] `git log --oneline -20` 查看上游最新变化
 - [ ] 对比 `internal/prompts/templates/` 与 `prompts/` 目录
 - [ ] 提示词有变化 → 翻译/更新中文版本
-- [ ] 有新功能 → 在 README 添加版本说明
+- [ ] 有新功能 → 在根目录 README 添加版本说明
 - [ ] 提交到 git
