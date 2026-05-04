@@ -1,5 +1,21 @@
 # Sage-Wiki 自定义提示词使用方法
 
+## 版本历史
+
+### v0.1.5 — 2026-05-（对照 upstream `sage-wiki` `v0.1.5` / commit `9547063`）
+
+- 新增 `wiki_capture` MCP 工具，可从对话文本中自动提取知识项（决策、发现、技术事实）存入个人维基。
+- 提示词模板 `capture_knowledge.txt` 已在 upstream 中支持，相应中文覆盖版 `capture-knowledge.md` 保持同步。
+- 同期上游值得关注的能力：`[[wikilinks]]` 语法增强、分层编译实验性支持。
+
+### 同步检查（对照 upstream `sage-wiki` `origin/main` / `v0.1.5`）— 2026-04-22
+
+- 已复核 6 个提示词模板仍可覆盖当前上游版本。
+- `caption-image.md` 已对齐上游当前的结构化输出要求：短标题、图片类型、关键信息。
+- `capture-knowledge.md` 已补齐知识捕获提示词的输入引导尾句，避免 `wiki_capture` 场景里原始文本直接无提示拼接。
+- `extract-concepts.md` 与 `write-article.md` 继续保留中文优先的本地定制，兼容当前上游变量。
+- 上游近期值得关注的能力更新包括：输出语言配置、可配置关系/实体类型、分层编译与按需编译、增强检索、Hub/coverage 命令、知识捕获 MCP、批处理与成本估算、跨语言/CJK 搜索改进。
+
 ## 概述
 
 Sage-wiki 支持用户自定义所有 LLM 提示词，用于控制文档摘要生成、概念提取、文章写作等行为。自定义提示词可以完全覆盖内置默认值。
@@ -210,6 +226,14 @@ Sage-wiki 使用 Go `text/template` 语法。
 **可用变量**：
 - `{{.SourcePath}}` — 图片文件路径
 
+**输出结构**（建议保留）：
+```
+1. 一句简短标题
+2. 图片类型
+3. 关键信息
+```
+建议控制在 100 词以内。
+
 ---
 
 ### capture-knowledge.md（知识捕获）
@@ -224,7 +248,7 @@ Sage-wiki 使用 Go `text/template` 语法。
 ```json
 [{"title": "short-slug-title", "content": "知识内容..."}, ...]
 ```
-如果没有值得提取的内容，返回空数组 `[]`。
+如果没有值得提取的内容，返回空数组 `[]`。模板末尾建议保留“待提取文本：”之类的引导语，便于后续拼接原始内容。
 
 ---
 
